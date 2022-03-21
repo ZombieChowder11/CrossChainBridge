@@ -3,8 +3,7 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
-contract IToken is ERC20 {
-  constructor() ERC20('Imaginary Token One', 'ETO') {
-    _mint(msg.sender, 1000000 * 10 ** 18);
-  }
+interface IToken {
+  function mint(address to, uint amount) external;
+  function burn(address owner, uint amount) external;
 }
