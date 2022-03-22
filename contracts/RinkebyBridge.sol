@@ -1,4 +1,9 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-contract RinkebyBridge {}
+import './BridgeBase.sol';
+
+contract RinkebyBridge is BridgeBase{
+  constructor(address token) BridgeBase(token){
+  }
+}

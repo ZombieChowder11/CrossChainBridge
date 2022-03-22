@@ -1,7 +1,11 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-contract RopstenBridge {
+import './BridgeBase.sol';
+
+contract RopstenBridge is BridgeBase{
+    constructor(address token) BridgeBase(token){
+  }
 
   /**
     1. Sends tokens to the bridge smart contract.
