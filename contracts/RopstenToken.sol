@@ -1,6 +1,8 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-contract RopstenToken{
-  
+import './TokenBase.sol';
+
+contract RopstenToken is TokenBase {
+  constructor() TokenBase('Ropsten Example Token', 'RopET') {}
 }
