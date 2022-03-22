@@ -31,6 +31,12 @@ contract BridgeBase {
     canceled++;
   }
 
-  function mint() external{}
-// transferFrom(msg.sender, address(this), amount)
+  function mint(address to, uint amount, uint otherChainCanceled) external{
+    require(msg.sender == admin, 'admin');
+    require(paymentCanceled[otherChainCanceled]);
+    paymentCanceled[otherChainCanceled] = true;
+    token.mint(to, amount);
+    emit Transfer(msg.sender, to, amount, block.timestamp, otherChainCanceled, Step.Mint);
+  }
+
 }
