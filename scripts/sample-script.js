@@ -5,11 +5,11 @@
 // Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
 
-const TokenRopsten = require('../contracts/RopstenToken.sol');
-const BridgeRopsten = require('../contracts/RopstenToken.sol');
+const TokenRopsten = require('../artifacts/contracts/RopstenToken.sol/RopstenToken.json');
+const BridgeRopsten = require('../artifacts/contracts/RopstenBridge.sol/RopstenBridge.json');
 
-const TokenRinkeby = require('../contracts/RinkebyToken.sol');
-const BridgeRinkeby = require('../contracts/RinkebyBridge.sol');
+const TokenRinkeby = require('../artifacts/contracts/RinkebyToken.sol/RinkebyToken.json');
+const BridgeRinkeby = require('../artifacts/contracts/RinkebyBridge.sol/RinkebyBridge.json');
 
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -27,13 +27,17 @@ async function main() {
 
   // console.log("Greeter deployed to:", greeter.address);
 
-  const [deployer] = await ethers.getSigners();
+  const [deployer] = await hre.ethers.getSigners();
   const networkName = hre.network.name; //await ethers.getDefaultProvider().getNetwork();
 
   //TODO: Replace hardcoded strings with env
   if(networkName === 'ropsten'){
-    await deployer.deploy(TokenRopsten);
-    const tokenRopsten = await TokenRopsten.deployed();
+    // await deployer.deploy(TokenRopsten);
+    const tokenRopsten = await ethers.getContractFactory(TokenRopsten); 
+    const tokenRopstenContract = await tokenRopsten.deploy();
+    await tokenRopstenContract.deployed();
+    //const tokenRopsten = await TokenRopsten.deployed();
+
     await tokenRopsten.mint(address[0], 1000);
     await deployer.deploy(BridgeRopsten);
     const bridgeRopsten = await BridgeRopsten.deployed();
@@ -60,3 +64,6 @@ main()
     console.error(error);
     process.exit(1);
   });
+
+
+  //npx hardhat run --network rinkeby scripts/sample-script.js

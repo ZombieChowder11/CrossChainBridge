@@ -1,42 +1,81 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
+import "@openzeppelin/contracts/access/Ownable.sol";
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
-import './IToken.sol';
+import './WrappedToken.sol';
 
-contract BridgeBase {
+// copy + paste as the other chain.
+contract BridgeBase is Ownable{
   address public admin;
-  IToken public token;
-  uint public canceled;
-  mapping(uint => bool) public paymentCanceled;
+  address public tokenAddress;
 
-  enum Step { Burn, Mint }
+  event Claimed(address claimer, uint256 amount, address wrTokenAddress);
+  event lockedBridge(address to, uint256 amount, address token);
+
+  ERC20 token;
+
+  mapping(address => mapping(address => uint256)) public tokenHasBeenClaimed;
+  mapping(address => mapping(address => uint256)) public numberMintedTokens; 
+  mapping(address => address) public nativeToWrapped;
+
   event Transfer(
     address from,
     address to,
     uint amount,
-    uint date,
-    uint canceled,
-    Step indexed step
+    uint date
   );
-
-  constructor(address _token){
+  
+  constructor(){
     admin = msg.sender;
-    token = IToken(_token);
   }
 
-  function burn(address to, uint amount) external{
-    token.burn(msg.sender, amount);
-    emit Transfer(msg.sender, to, amount, block.timestamp, canceled, Step.Burn);
-    canceled++;
+  function setERC20ContractAddress(address _address) private {
+    token = ERC20(_address);
   }
 
-  function mint(address to, uint amount, uint otherChainCanceled) external{
-    require(msg.sender == admin, 'admin');
-    require(paymentCanceled[otherChainCanceled]);
-    paymentCanceled[otherChainCanceled] = true;
-    token.mint(to, amount);
-    emit Transfer(msg.sender, to, amount, block.timestamp, otherChainCanceled, Step.Mint);
+  function deployToken(address nativeTokenAddress) private {
+    address newWrappedAddress = address( new WrappedToken());
+    nativeToWrapped[nativeTokenAddress] = newWrappedAddress;
+  }
+
+  function tokenExists(address nativeTokenAddress) private view returns (bool exists) {
+    return nativeToWrapped[nativeTokenAddress] != address(0x0);
+  }
+
+  function bridgeToken(address to, uint amount, address _tokenAddress) external {
+      require(amount > 0);
+      require(_tokenAddress != address(0x0));
+      require(to != address(0x0));
+      setERC20ContractAddress(_tokenAddress);
+      //1. approve token contract with spender contract address(this).
+      token.approve(address(this), amount);         //1.1 check approve from ERC20
+      token.transferFrom(msg.sender, address(this), amount); 
+      emit Transfer(msg.sender, to, amount, block.timestamp);
+  }
+
+  function claimToken(address nativeTokenAddress, uint256 amount) public {
+      require( amount > 0, 'Claiming tokens with negative amount');
+      require(msg.sender != address(0x0));
+     
+     bool tokenAlreadyExists = tokenExists(nativeTokenAddress);
+   
+      if(!tokenAlreadyExists){
+        deployToken(nativeTokenAddress);
+      }
+      //check if already exists
+        //if doesn't exist, deploy new
+        //after deploy sign address in the mapping in the deployed token (which points to the address of the n. function)
+    // mint wrappedToken(to, amount)
+              //mapping (address => address)
+    //check if claimed
+    //emit event for tokens claimed
+  }
+
+  function releaseTokens(address contractAddress, uint256 amount) public{
+    require(amount > 0, 'Positive amount of tokens');
+    setERC20ContractAddress(contractAddress);
+    token.approve(msg.sender, amount);
   }
 
 }
