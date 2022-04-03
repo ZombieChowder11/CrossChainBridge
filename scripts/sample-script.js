@@ -4,12 +4,13 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
+const ethers = hre.ethers;
 
-const TokenRopsten = require('../artifacts/contracts/RopstenToken.sol/RopstenToken.json');
-const BridgeRopsten = require('../artifacts/contracts/RopstenBridge.sol/RopstenBridge.json');
+const RinkebyBridge = require('../artifacts/contracts/RinkebyBridge.sol/RinkebyBridge.json');
+const RinkebyToken = require('../artifacts/contracts/RinkebyToken.sol/RinkebyToken.json');
 
-const TokenRinkeby = require('../artifacts/contracts/RinkebyToken.sol/RinkebyToken.json');
-const BridgeRinkeby = require('../artifacts/contracts/RinkebyBridge.sol/RinkebyBridge.json');
+const RopstenBridge = require('../artifacts/contracts/RopstenBridge.sol/RopstenBridge.json');
+const RopstenToken = require('../artifacts/contracts/RopstenToken.sol/RopstenToken.json');
 
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -23,29 +24,31 @@ async function main() {
   // const Greeter = await hre.ethers.getContractFactory("Greeter");
   // const greeter = await Greeter.deploy("Hello, Hardhat!");
 
-  const [deployer] = await hre.ethers.getSigners();
+  await hre.run('compile'); // We are compiling the contracts using subtask
+  const [deployer] = await ethers.getSigners(); // not used.
   const networkName = hre.network.name; //await ethers.getDefaultProvider().getNetwork();
 
-  //TODO: Replace hardcoded strings with env
   if(networkName === 'ropsten'){
-    const tokenRopsten = await ethers.getContractFactory(TokenRopsten); 
+    const tokenRopsten = await ethers.getContractFactory(RopstenToken); 
     const tokenRopstenContract = await tokenRopsten.deploy();
     await tokenRopstenContract.deployed();
-
     await tokenRopsten.mint(address[0], 1000);
-    await deployer.deploy(BridgeRopsten);
-    const bridgeRopsten = await BridgeRopsten.deployed();
-    await tokenRopsten.updateAdmin(bridgeRopsten.address);
+
+    const bridgeRopsten = await ethers.getContractFactory(RopstenBridge); 
+    const bridgeRopstenContract = await bridgeRopsten.deployed();
+    await bridgeRopstenContract.deployed();
     console.log("Token address:", tokenRopsten.address);
   }
 
   if(networkName === 'rinkeby'){
-    await deployer.deploy(TokenRinkeby);
-    const tokenRinkeby = await TokenRinkeby.deployed();
+    const tokenRinkeby = await ethers.getContractFactory(RinkebyToken); 
+    const tokenRinkebyContract = await RinkebyToken.deployed();
+    await tokenRinkebyContract.deployed();
     await tokenRinkeby.mint(address[0], 1000);
-    await deployer.deploy(BridgeRinkeby);
-    const bridgeRinkeby = await BridgeRinkeby.deployed();
-    await TokenRinkeby.updateAdmin(bridgeRinkeby.address);
+
+    const bridgeRinkeby = await ethers.getContractFactory(RinkebyBridge); 
+    const bridgeRinkebyContract = await bridgeRinkeby.deploy();
+    await bridgeRinkebyContract.deployed();
     console.log("Token address:", tokenRinkeby.address);
   }
 }
