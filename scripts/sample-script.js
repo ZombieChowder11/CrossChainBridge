@@ -23,20 +23,14 @@ async function main() {
   // const Greeter = await hre.ethers.getContractFactory("Greeter");
   // const greeter = await Greeter.deploy("Hello, Hardhat!");
 
-  // await greeter.deployed();
-
-  // console.log("Greeter deployed to:", greeter.address);
-
   const [deployer] = await hre.ethers.getSigners();
   const networkName = hre.network.name; //await ethers.getDefaultProvider().getNetwork();
 
   //TODO: Replace hardcoded strings with env
   if(networkName === 'ropsten'){
-    // await deployer.deploy(TokenRopsten);
     const tokenRopsten = await ethers.getContractFactory(TokenRopsten); 
     const tokenRopstenContract = await tokenRopsten.deploy();
     await tokenRopstenContract.deployed();
-    //const tokenRopsten = await TokenRopsten.deployed();
 
     await tokenRopsten.mint(address[0], 1000);
     await deployer.deploy(BridgeRopsten);
