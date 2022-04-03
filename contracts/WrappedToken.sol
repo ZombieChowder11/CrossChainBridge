@@ -6,9 +6,9 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 contract WrappedToken is ERC20 {
     constructor() ERC20("Wrapped Token", "wrTkn"){}
 
-    function mint(uint amount) external payable{
+    function mint(address to, uint amount) external payable{
         transferFrom(msg.sender, address(this), amount);
-        _mint(msg.sender, msg.value);
+        _mint(to, amount);
     }
 
     function burn(uint amount) external {

@@ -63,6 +63,13 @@ contract BridgeBase is Ownable{
       if(!tokenAlreadyExists){
         deployToken(nativeTokenAddress);
       }
+
+      address wrappedTokenAddress = nativeToWrapped[nativeTokenAddress];
+      WrappedToken wrTkn = WrappedToken(wrappedTokenAddress);
+      wrTkn.mint(msg.sender, amount);
+      tokenHasBeenClaimed[wrappedTokenAddress][msg.sender] = amount;
+      emit Claimed(msg.sender, amount, wrappedTokenAddress);
+      
       //check if already exists
         //if doesn't exist, deploy new
         //after deploy sign address in the mapping in the deployed token (which points to the address of the n. function)
