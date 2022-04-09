@@ -38,6 +38,8 @@ async function main() {
     const bridgeRopstenContract = await bridgeRopsten.deployed();
     await bridgeRopstenContract.deployed();
     console.log("Token address:", tokenRopsten.address);
+    console.log("Deploying contracts with the account:", deployer.address);
+    console.log("Account balance:", (await deployer.getBalance()).toString());
   }
 
   if(networkName === 'rinkeby'){
@@ -50,6 +52,8 @@ async function main() {
     const bridgeRinkebyContract = await bridgeRinkeby.deploy();
     await bridgeRinkebyContract.deployed();
     console.log("Token address:", tokenRinkeby.address);
+    console.log("Deploying contracts with the account:", deployer.address);
+    console.log("Account balance:", (await deployer.getBalance()).toString());
   }
 }
 
