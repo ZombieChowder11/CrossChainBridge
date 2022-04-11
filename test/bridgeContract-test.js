@@ -7,8 +7,6 @@ describe('RopstenBridge', function () {
   let owner;
   let user2;
   
- 
-
     before(async () => {
       wrTokenFactory = await ethers.getContractFactory("WrappedToken");
       wrToken = await wrTokenFactory.deploy();
@@ -50,5 +48,37 @@ describe('RopstenBridge', function () {
     const newNativeToWrappedAddr = await bridgeBase.nativeToWrapped(wrToken.address)
     
     expect(await bridgeBase.tokenExists(newNativeToWrappedAddr)).to.equal(false)
+  });
+
+  it("Should claim tokens provided the native token address doesnt exist.", async function () {
+    let rinkebyTokenFactory = await ethers.getContractFactory("RinkebyToken");
+    let rinkebyToken = await rinkebyTokenFactory.deploy();
+    await rinkebyToken.deployed();
+
+    const tokenAlreadyExists =  await bridgeBase.tokenExists(rinkebyToken.address);
+
+    if(!tokenAlreadyExists){
+      await bridgeBase.deployToken(rinkebyToken.address);
+    }
+
+    expect(await bridgeBase.claimToken(rinkebyToken.address, owner.getAddress()))
+    .to.emit(bridgeBase, "Claimed")
+    .withArgs(owner.getAddress(), 50, wrToken.address); 
+  })
+
+  it("Should claim tokens provided the native token address exists.", async function () {
+    let rinkebyTokenFactory = await ethers.getContractFactory("RinkebyToken");
+    let rinkebyToken = await rinkebyTokenFactory.deploy();
+    await rinkebyToken.deployed();
+
+    const tokenAlreadyExists =  await bridgeBase.tokenExists(rinkebyToken.address);
+
+    if(!tokenAlreadyExists){
+      await bridgeBase.deployToken(wrToken.address);
+    }
+
+    expect(await bridgeBase.claimToken(rinkebyToken.address, owner.getAddress()))
+    .to.emit(bridgeBase, "Claimed")
+    .withArgs(owner.getAddress(), 50, wrToken.address); 
   })
 });
