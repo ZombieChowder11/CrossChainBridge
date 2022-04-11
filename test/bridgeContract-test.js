@@ -7,6 +7,8 @@ describe('RopstenBridge', function () {
   let owner;
   let user2;
   
+ 
+
     before(async () => {
       wrTokenFactory = await ethers.getContractFactory("WrappedToken");
       wrToken = await wrTokenFactory.deploy();
@@ -19,28 +21,34 @@ describe('RopstenBridge', function () {
       [owner, user2] = await ethers.getSigners();
   });
 
-  //getter + imeto na mapping 
 
+  it("Should emit Transfer with given args.", async function () {
+    await wrToken.mint(owner.getAddress(), 1000);
+    await wrToken.connect(bridgeBase.signer).approve(owner.getAddress(), 1000)
+    await wrToken.connect(owner).approve(bridgeBase.address, 1000)
+    await wrToken.connect(bridgeBase.signer).transferFrom(owner.getAddress(), bridgeBase.address, 200);
 
-  it("Should emit Transfer with given args", async function () {
-    //await wrToken.connect(user2).approve(owner.getAddress(), 10000)
-    //await wrToken.connect(owner).burnFrom(user2.getAddress(), 50);
-    await wrToken.mint(user2.getAddress(), 1000);
-    await wrToken.connect(user2).approve(owner.getAddress(), 1000)
-    await wrToken.connect(owner).transferFrom(user2.getAddress(), owner.getAddress(), 50);
-
-    console.log("user2", await wrToken.balanceOf(user2.getAddress()))
-    console.log("owner", await wrToken.balanceOf(owner.getAddress()))
-
-    console.log("bridgeBase", await wrToken.balanceOf(bridgeBase.address))
-    console.log("wrToken", await wrToken.balanceOf(wrToken.address))
-    //bridgeToken(address to, uint amount, address _tokenAddress) 
-    //emit Transfer(msg.sender, to, amount, block.timestamp);
-    // expect(await bridgeBase.bridgeToken(bridgeBase.address, 50, wrToken.address))
-    //   .to.emit(Transfer)
-    //   .withArgs(user2.getAddress(), bridgeBase.address, 50, block.timestamp);
+   expect(await bridgeBase.bridgeToken(owner.getAddress(), 50, wrToken.address))
+      .to.emit(bridgeBase, "Transfer")
+      .withArgs(owner.getAddress(), bridgeBase.address, 50, 1460714400); 
   });
 
 
+  it("Should a wrapped token form the native token address.", async function () {
+    let rinkebyTokenFactory = await ethers.getContractFactory("RinkebyToken");
+    let rinkebyToken = await rinkebyTokenFactory.deploy();
+    await rinkebyToken.deployed();
 
+    await bridgeBase.deployToken(rinkebyToken.address)
+   
+    await bridgeBase.nativeToWrapped(wrToken.address)
+   
+  });
+
+
+  it("Should check if token exists based on the native to wrapped address.", async function () {
+    const newNativeToWrappedAddr = await bridgeBase.nativeToWrapped(wrToken.address)
+    
+    expect(await bridgeBase.tokenExists(newNativeToWrappedAddr)).to.equal(false)
+  })
 });

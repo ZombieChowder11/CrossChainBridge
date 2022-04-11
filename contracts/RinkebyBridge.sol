@@ -34,12 +34,12 @@ contract RinkebyBridge is Ownable{
     token = ERC20(_address);
   }
 
-  function deployToken(address nativeTokenAddress) private {
+  function deployToken(address nativeTokenAddress) private /** change to public for testing */ {
     address newWrappedAddress = address( new WrappedToken());
     nativeToWrapped[nativeTokenAddress] = newWrappedAddress;
   }
 
-  function tokenExists(address nativeTokenAddress) private view returns (bool exists) {
+  function tokenExists(address nativeTokenAddress) private view returns (bool exists) /** change to public for testing */ {
     return nativeToWrapped[nativeTokenAddress] != address(0x0);
   }
 
