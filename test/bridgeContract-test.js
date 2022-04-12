@@ -4,6 +4,9 @@ describe('RopstenBridge', function () {
   let bridgeFactory;
   let bridgeBase;
   let wrToken;
+  let rinkebyTokenFactory;
+  let rinkebyToken;
+
   let owner;
   let user2;
   
@@ -15,6 +18,10 @@ describe('RopstenBridge', function () {
       bridgeFactory = await ethers.getContractFactory("RinkebyBridge");
       bridgeBase = await bridgeFactory.deploy();
       await bridgeBase.deployed();
+
+      rinkebyTokenFactory = await ethers.getContractFactory("RinkebyToken");
+      rinkebyToken = await rinkebyTokenFactory.deploy();
+      await rinkebyToken.deployed();
 
       [owner, user2] = await ethers.getSigners();
   });
@@ -33,14 +40,8 @@ describe('RopstenBridge', function () {
 
 
   it("Should a wrapped token form the native token address.", async function () {
-    let rinkebyTokenFactory = await ethers.getContractFactory("RinkebyToken");
-    let rinkebyToken = await rinkebyTokenFactory.deploy();
-    await rinkebyToken.deployed();
-
     await bridgeBase.deployToken(rinkebyToken.address)
-   
     await bridgeBase.nativeToWrapped(wrToken.address)
-   
   });
 
 
@@ -61,24 +62,30 @@ describe('RopstenBridge', function () {
       await bridgeBase.deployToken(rinkebyToken.address);
     }
 
-    expect(await bridgeBase.claimToken(rinkebyToken.address, owner.getAddress()))
+    expect(await bridgeBase.claimToken(rinkebyToken.address, 50))
     .to.emit(bridgeBase, "Claimed")
     .withArgs(owner.getAddress(), 50, wrToken.address); 
   })
 
   it("Should claim tokens provided the native token address exists.", async function () {
-    let rinkebyTokenFactory = await ethers.getContractFactory("RinkebyToken");
-    let rinkebyToken = await rinkebyTokenFactory.deploy();
-    await rinkebyToken.deployed();
+    let ropstenTokenFactory = await ethers.getContractFactory("RopstenToken");
+    let ropstenToken = await ropstenTokenFactory.deploy();
+    await ropstenToken.deployed();
 
-    const tokenAlreadyExists =  await bridgeBase.tokenExists(rinkebyToken.address);
+    const tokenAlreadyExists =  await bridgeBase.tokenExists(ropstenToken.address);
 
     if(!tokenAlreadyExists){
       await bridgeBase.deployToken(wrToken.address);
     }
 
-    expect(await bridgeBase.claimToken(rinkebyToken.address, owner.getAddress()))
+    expect(await bridgeBase.claimToken(ropstenToken.address, 50))
     .to.emit(bridgeBase, "Claimed")
     .withArgs(owner.getAddress(), 50, wrToken.address); 
+  });
+
+  it("Should release tokens with provided token address and amount.", async function(){
+    await bridgeBase.releaseTokens(rinkebyToken.address, 50);
+    await rinkebyToken.approve(owner.getAddress(), 50)
   })
+
 });

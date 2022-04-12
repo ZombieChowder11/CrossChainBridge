@@ -5,7 +5,6 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
 import './WrappedToken.sol';
 
-// copy + paste as the other chain.
 contract RinkebyBridge is Ownable{
   address public admin;
   address public tokenAddress;
@@ -48,8 +47,8 @@ contract RinkebyBridge is Ownable{
       require(_tokenAddress != address(0x0));
       require(to != address(0x0));
       setERC20ContractAddress(_tokenAddress);
-      //1. approve token contract with spender contract address(this).
-      token.approve(address(this), amount);         //1.1 check approve from ERC20
+
+      token.approve(address(this), amount); 
       token.transferFrom(msg.sender, address(this), amount); 
       emit Transfer(msg.sender, to, amount, block.timestamp);
   }
@@ -69,14 +68,6 @@ contract RinkebyBridge is Ownable{
       wrTkn.mint(msg.sender, amount);
       tokenHasBeenClaimed[wrappedTokenAddress][msg.sender] = amount;
       emit Claimed(msg.sender, amount, wrappedTokenAddress);
-
-      //check if already exists
-        //if doesn't exist, deploy new
-        //after deploy sign address in the mapping in the deployed token (which points to the address of the n. function)
-    // mint wrappedToken(to, amount)
-              //mapping (address => address)
-    //check if claimed
-    //emit event for tokens claimed
   }
 
   function releaseTokens(address contractAddress, uint256 amount) public{
