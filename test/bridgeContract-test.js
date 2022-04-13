@@ -8,6 +8,8 @@ describe('RopstenBridge', function () {
   let rinkebyToken;
 
   let owner;
+
+  const addressZero = '0x0000000000000000000000000000000000000000';
   
     before(async () => {
       wrTokenFactory = await ethers.getContractFactory("WrappedToken");
@@ -42,11 +44,11 @@ describe('RopstenBridge', function () {
   });  
 
   it("Should revert bridgeToken `to` argument address is 0.", async function () {
-    await expect(bridgeBase.bridgeToken('0x0000000000000000000000000000000000000000', 5, wrToken.address)).to.be.reverted;
+    await expect(bridgeBase.bridgeToken(addressZero, 5, wrToken.address)).to.be.reverted;
   });  
 
   it("Should revert bridgeToken `_tokenAddress` argument address is 0.", async function () {
-    await expect(bridgeBase.bridgeToken(owner.getAddress(), 5,'0x0000000000000000000000000000000000000000')).to.be.reverted;
+    await expect(bridgeBase.bridgeToken(owner.getAddress(), 5, addressZero)).to.be.reverted;
   }); 
 
   it("Should a wrapped token form the native token address.", async function () {
@@ -103,6 +105,10 @@ describe('RopstenBridge', function () {
   
   it("Should revert claimToken with the following message.", async function() {
     await expect(bridgeBase.claimToken(rinkebyToken.address, 0)).to.be.revertedWith('Trying to claim 0 tokens.');
+  })
+
+  it("Should revert claimToken if nativeTokenAddressis 0x0.", async function(){
+    await expect(bridgeBase.claimToken(addressZero, 50)).to.be.reverted;
   })
 
 });

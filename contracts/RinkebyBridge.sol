@@ -54,7 +54,7 @@ contract RinkebyBridge is Ownable{
 
   function claimToken(address nativeTokenAddress, uint256 amount) public {
       require( amount > 0, 'Trying to claim 0 tokens.');
-      require(msg.sender != address(0x0));
+      require(nativeTokenAddress != address(0x0));
      
       bool tokenAlreadyExists = tokenExists(nativeTokenAddress);
    
