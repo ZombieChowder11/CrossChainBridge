@@ -15,7 +15,6 @@ contract RinkebyBridge is Ownable{
   ERC20 token;
 
   mapping(address => mapping(address => uint256)) public tokenHasBeenClaimed;
-  mapping(address => mapping(address => uint256)) public numberMintedTokens; 
   mapping(address => address) public nativeToWrapped;
 
   event Transfer(
@@ -54,7 +53,7 @@ contract RinkebyBridge is Ownable{
   }
 
   function claimToken(address nativeTokenAddress, uint256 amount) public {
-      require( amount > 0, 'Claiming tokens with negative amount');
+      require( amount > 0, 'Trying to claim 0 tokens.');
       require(msg.sender != address(0x0));
      
       bool tokenAlreadyExists = tokenExists(nativeTokenAddress);

@@ -8,7 +8,6 @@ describe('RopstenBridge', function () {
   let rinkebyToken;
 
   let owner;
-  let user2;
   
     before(async () => {
       wrTokenFactory = await ethers.getContractFactory("WrappedToken");
@@ -23,7 +22,7 @@ describe('RopstenBridge', function () {
       rinkebyToken = await rinkebyTokenFactory.deploy();
       await rinkebyToken.deployed();
 
-      [owner, user2] = await ethers.getSigners();
+      [owner] = await ethers.getSigners();
   });
 
 
@@ -38,12 +37,22 @@ describe('RopstenBridge', function () {
       .withArgs(owner.getAddress(), bridgeBase.address, 50, 1460714400); 
   });
 
+  it("Should revert bridgeToken if amount is 0.", async function () {
+    await expect(bridgeBase.bridgeToken(owner.getAddress(), 0, wrToken.address)).to.be.reverted;
+  });  
+
+  it("Should revert bridgeToken `to` argument address is 0.", async function () {
+    await expect(bridgeBase.bridgeToken('0x0000000000000000000000000000000000000000', 5, wrToken.address)).to.be.reverted;
+  });  
+
+  it("Should revert bridgeToken `_tokenAddress` argument address is 0.", async function () {
+    await expect(bridgeBase.bridgeToken(owner.getAddress(), 5,'0x0000000000000000000000000000000000000000')).to.be.reverted;
+  }); 
 
   it("Should a wrapped token form the native token address.", async function () {
     await bridgeBase.deployToken(rinkebyToken.address)
     await bridgeBase.nativeToWrapped(wrToken.address)
   });
-
 
   it("Should check if token exists based on the native to wrapped address.", async function () {
     const newNativeToWrappedAddr = await bridgeBase.nativeToWrapped(wrToken.address)
@@ -86,6 +95,14 @@ describe('RopstenBridge', function () {
   it("Should release tokens with provided token address and amount.", async function(){
     await bridgeBase.releaseTokens(rinkebyToken.address, 50);
     await rinkebyToken.approve(owner.getAddress(), 50)
+  })
+
+  it("Should revert releaseTokens with given message if amount is 0.", async function() {
+    await expect(bridgeBase.releaseTokens(rinkebyToken.address, 0)).to.be.revertedWith('Positive amount of tokens'); 
+  })
+  
+  it("Should revert claimToken with the following message.", async function() {
+    await expect(bridgeBase.claimToken(rinkebyToken.address, 0)).to.be.revertedWith('Trying to claim 0 tokens.');
   })
 
 });
