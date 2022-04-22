@@ -1,29 +1,12 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
 const ethers = hre.ethers;
 
-const RinkebyBridge = require('../artifacts/contracts/RinkebyBridge.sol/RinkebyBridge.json');
+const Bridge = require('../artifacts/contracts/Bridge.sol/Bridge.json');
 const RinkebyToken = require('../artifacts/contracts/RinkebyToken.sol/RinkebyToken.json');
-
-const RopstenBridge = require('../artifacts/contracts/RopstenBridge.sol/RopstenBridge.json');
 const RopstenToken = require('../artifacts/contracts/RopstenToken.sol/RopstenToken.json');
+const WrappedToken =  require('../artifacts/contracts/WrappedToken.sol/WrappedToken.json');
 
 async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
-
-  // We get the contract to deploy
-  // const Greeter = await hre.ethers.getContractFactory("Greeter");
-  // const greeter = await Greeter.deploy("Hello, Hardhat!");
-
   await hre.run('compile'); // We are compiling the contracts using subtask
   const [deployer] = await ethers.getSigners(); // not used.
   const networkName = hre.network.name; //await ethers.getDefaultProvider().getNetwork();
@@ -34,7 +17,11 @@ async function main() {
     await tokenRopstenContract.deployed();
     await tokenRopsten.mint(address[0], 1000);
 
-    const bridgeRopsten = await ethers.getContractFactory(RopstenBridge); 
+    const wrToken = await ethers.getContractFactory(WrappedToken); 
+    const wrTokenContract = await wrToken.deploy();
+    await wrTokenContract.deployed();
+    
+    const bridgeRopsten = await ethers.getContractFactory(Bridge); 
     const bridgeRopstenContract = await bridgeRopsten.deployed();
     await bridgeRopstenContract.deployed();
     console.log("Token address:", tokenRopsten.address);
@@ -48,7 +35,11 @@ async function main() {
     await tokenRinkebyContract.deployed();
     await tokenRinkeby.mint(address[0], 1000);
 
-    const bridgeRinkeby = await ethers.getContractFactory(RinkebyBridge); 
+    const wrToken = await ethers.getContractFactory(WrappedToken); 
+    const wrTokenContract = await wrToken.deploy();
+    await wrTokenContract.deployed();
+    
+    const bridgeRinkeby = await ethers.getContractFactory(Bridge); 
     const bridgeRinkebyContract = await bridgeRinkeby.deploy();
     await bridgeRinkebyContract.deployed();
     console.log("Token address:", tokenRinkeby.address);

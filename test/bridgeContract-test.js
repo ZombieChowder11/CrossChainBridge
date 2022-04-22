@@ -16,7 +16,7 @@ describe('RopstenBridge', function () {
       wrToken = await wrTokenFactory.deploy();
       await wrToken.deployed();
 
-      bridgeFactory = await ethers.getContractFactory("RinkebyBridge");
+      bridgeFactory = await ethers.getContractFactory("Bridge");
       bridgeBase = await bridgeFactory.deploy();
       await bridgeBase.deployed();
 
@@ -67,13 +67,13 @@ describe('RopstenBridge', function () {
     let rinkebyToken = await rinkebyTokenFactory.deploy();
     await rinkebyToken.deployed();
 
-    const tokenAlreadyExists =  await bridgeBase.tokenExists(rinkebyToken.address);
+    const tokenAlreadyExists = await bridgeBase.tokenExists(rinkebyToken.address);
 
     if(!tokenAlreadyExists){
       await bridgeBase.deployToken(rinkebyToken.address);
     }
 
-    expect(await bridgeBase.claimToken(rinkebyToken.address, 50))
+    expect(await bridgeBase.claimToken("0x81547019bef04f65f91163b765453859aa7b1dc4d0047bd0940adf2cc6b9e84b", "0x81547019bef04f65f91163b765453859aa7b1dc4d0047bd0940adf2cc6b9e84b", rinkebyToken.address, 50))
     .to.emit(bridgeBase, "Claimed")
     .withArgs(owner.getAddress(), 50, wrToken.address); 
   })

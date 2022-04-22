@@ -5,7 +5,7 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
 import './WrappedToken.sol';
 
-contract RinkebyBridge is Ownable{
+contract Bridge is Ownable{
   address public admin;
   address public tokenAddress;
 
@@ -82,8 +82,8 @@ contract RinkebyBridge is Ownable{
   function claimToken(bytes32 message, bytes memory _signature, address nativeTokenAddress, uint256 amount) public {
       require( amount > 0, 'Trying to claim 0 tokens.');
       require(nativeTokenAddress != address(0x0));
-     
       require(recoverSigner(message, _signature) == msg.sender);
+      
       bool tokenAlreadyExists = tokenExists(nativeTokenAddress);
    
       if(!tokenAlreadyExists){
