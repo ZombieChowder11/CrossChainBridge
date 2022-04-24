@@ -37,32 +37,10 @@ contract Bridge is Ownable{
     nativeToWrapped[nativeTokenAddress] = newWrappedAddress;
   }
 
-  function splitSignature(bytes memory sig) public pure returns (uint8, bytes32, bytes32){
-       require(sig.length == 65);
-       bytes32 r;
-       bytes32 s;
-       uint8 v;
-       assembly {
-           // first 32 bytes, after the length prefix
-           r := mload(add(sig, 32))
-           // second 32 bytes
-           s := mload(add(sig, 64))
-           // final byte (first byte of the next 32 bytes)
-           v := byte(0, mload(add(sig, 96)))
-       }
-     
-       return (v, r, s);
-   }
-
-  function recoverSigner(bytes32 message, bytes memory sig) internal pure returns (address){
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
-
-        (v, r, s) = splitSignature(sig);
-
-        return ecrecover(message, v, r, s);
-    }
+  function recoverSigner(bytes32 hashedMessage, uint8 v, bytes32 r, bytes32 s) internal pure returns (address) {
+		bytes32 messageDigest = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hashedMessage));
+    return ecrecover(messageDigest, v, r, s);
+	}
 
   function tokenExists(address nativeTokenAddress) private view returns (bool exists) /** change to public for testing */ {
     return nativeToWrapped[nativeTokenAddress] != address(0x0);
@@ -79,10 +57,10 @@ contract Bridge is Ownable{
       emit Transfer(msg.sender, to, amount, block.timestamp);
   }
 
-  function claimToken(bytes32 message, bytes memory _signature, address nativeTokenAddress, uint256 amount) public {
+  function claimToken(bytes32 message, uint8 v, bytes32 r, bytes32 s, address nativeTokenAddress, uint256 amount) public {
       require( amount > 0, 'Trying to claim 0 tokens.');
       require(nativeTokenAddress != address(0x0));
-      require(recoverSigner(message, _signature) == msg.sender);
+      require(recoverSigner(message, v,r,s) == msg.sender);
       
       bool tokenAlreadyExists = tokenExists(nativeTokenAddress);
    

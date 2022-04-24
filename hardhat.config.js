@@ -23,20 +23,7 @@ const { RINKEBY_RPC_URL, ROPSTEN_RPC_URL, PRIVATE_KEY } = process.env;
  * @type import('hardhat/config').HardhatUserConfig
  */
  module.exports = {
-    solidity:{
-      settings: {
-        optimizer: {
-          enabled: true,
-          runs: 200,
-        },
-      },
-      compilers:[
-        {
-          version: "0.8.4"
-        }
-      ]
-    },
-
+    solidity:"0.8.4",
     networks:{
       ropsten:{
         url: ROPSTEN_RPC_URL,

@@ -1,4 +1,6 @@
 const { expect } = require("chai");
+const { hashMessage } = require("ethers/lib/utils");
+const { ethers } = require("hardhat")
 
 describe('RopstenBridge', function () {
   let bridgeFactory;
@@ -73,7 +75,20 @@ describe('RopstenBridge', function () {
       await bridgeBase.deployToken(rinkebyToken.address);
     }
 
-    expect(await bridgeBase.claimToken("0x81547019bef04f65f91163b765453859aa7b1dc4d0047bd0940adf2cc6b9e84b", "0x81547019bef04f65f91163b765453859aa7b1dc4d0047bd0940adf2cc6b9e84b", rinkebyToken.address, 50))
+    const messageToSign = ethers.utils.id("Yes, I signed the message");
+    const hashedMessage = ethers.utils.solidityKeccak256(['string'], [messageToSign]);
+    //const arrayfiedHash = ethers.utils.arrayify(hashedMessage);
+   // const signedMessage = await owner.signMessage(arrayfiedHash);
+ 
+    const v = hashedMessage.charAt(hashedMessage.length-1);
+    const r = hashedMessage.slice(0,32);
+    const s = hashedMessage.slice(32,64);
+
+   
+
+    console.log(hashedMessage)
+    
+    expect(await bridgeBase.claimToken(hashedMessage, v, r, s, rinkebyToken.address, 50))
     .to.emit(bridgeBase, "Claimed")
     .withArgs(owner.getAddress(), 50, wrToken.address); 
   })
