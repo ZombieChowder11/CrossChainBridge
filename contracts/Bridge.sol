@@ -37,11 +37,6 @@ contract Bridge is Ownable{
     nativeToWrapped[nativeTokenAddress] = newWrappedAddress;
   }
 
-  function recoverSigner(bytes32 hashedMessage, uint8 v, bytes32 r, bytes32 s) internal pure returns (address) {
-		bytes32 messageDigest = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hashedMessage));
-    return ecrecover(messageDigest, v, r, s);
-	}
-
   function tokenExists(address nativeTokenAddress) private view returns (bool exists) /** change to public for testing */ {
     return nativeToWrapped[nativeTokenAddress] != address(0x0);
   }
@@ -57,10 +52,9 @@ contract Bridge is Ownable{
       emit Transfer(msg.sender, to, amount, block.timestamp);
   }
 
-  function claimToken(bytes32 message, uint8 v, bytes32 r, bytes32 s, address nativeTokenAddress, uint256 amount) public {
+  function claimToken(address nativeTokenAddress, uint256 amount) public {
       require( amount > 0, 'Trying to claim 0 tokens.');
       require(nativeTokenAddress != address(0x0));
-      require(recoverSigner(message, v,r,s) == msg.sender);
       
       bool tokenAlreadyExists = tokenExists(nativeTokenAddress);
    

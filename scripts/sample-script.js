@@ -10,7 +10,7 @@ async function main() {
     const tokenRopsten = await ethers.getContractFactory("RopstenToken"); 
     const tokenRopstenContract = await tokenRopsten.deploy();
     await tokenRopstenContract.deployed();
-    //await tokenRopstenContract.mint(deployer.getAddress(), 1000);
+    await tokenRopstenContract.mint(deployer.getAddress(), 1000);
 
     const wrToken = await ethers.getContractFactory("WrappedToken"); 
     const wrTokenContract = await wrToken.deploy();
@@ -21,6 +21,8 @@ async function main() {
     await bridgeRopstenContract.deployed();
 
     console.log("Token address:", tokenRopstenContract.address);
+    console.log("Bridge Ropsten:", bridgeRopstenContract.address);
+    console.log("Wrapped Token Address:", wrTokenContract.address);
     console.log("Deploying contracts with the account:", deployer.address);
     console.log("Account balance:", (await deployer.getBalance()).toString());
   }
@@ -29,7 +31,7 @@ async function main() {
     const tokenRinkeby = await ethers.getContractFactory("RinkebyToken"); 
     const tokenRinkebyContract = await tokenRinkeby.deploy();
     await tokenRinkebyContract.deployed();
-    //await tokenRinkebyContract.mint(deployer.getAddress(), 1000);
+    await tokenRinkebyContract.mint(deployer.getAddress(), 1000);
 
     const wrToken = await ethers.getContractFactory("WrappedToken"); 
     const wrTokenContract = await wrToken.deploy();
@@ -39,7 +41,9 @@ async function main() {
     const bridgeRinkebyContract = await bridgeRinkeby.deploy();
     await bridgeRinkebyContract.deployed();
 
-    console.log("Token address:", bridgeRinkebyContract.address);
+    console.log("Token address:", tokenRinkebyContract.address);
+    console.log("Bridge Rinkeby:", bridgeRinkebyContract.address);
+    console.log("Wrapped Token Address:", wrTokenContract.address);
     console.log("Deploying contracts with the account:", deployer.address);
     console.log("Account balance:", (await deployer.getBalance()).toString());
   }

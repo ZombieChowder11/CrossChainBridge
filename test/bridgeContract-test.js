@@ -75,20 +75,7 @@ describe('RopstenBridge', function () {
       await bridgeBase.deployToken(rinkebyToken.address);
     }
 
-    const messageToSign = ethers.utils.id("Yes, I signed the message");
-    const hashedMessage = ethers.utils.solidityKeccak256(['string'], [messageToSign]);
-    //const arrayfiedHash = ethers.utils.arrayify(hashedMessage);
-   // const signedMessage = await owner.signMessage(arrayfiedHash);
- 
-    const v = hashedMessage.charAt(hashedMessage.length-1);
-    const r = hashedMessage.slice(0,32);
-    const s = hashedMessage.slice(32,64);
-
-   
-
-    console.log(hashedMessage)
-    
-    expect(await bridgeBase.claimToken(hashedMessage, v, r, s, rinkebyToken.address, 50))
+    expect(await bridgeBase.claimToken(rinkebyToken.address, 50))
     .to.emit(bridgeBase, "Claimed")
     .withArgs(owner.getAddress(), 50, wrToken.address); 
   })
